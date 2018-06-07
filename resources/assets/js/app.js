@@ -3,10 +3,6 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 
-import VueAxios from 'vue-axios';
-import axios from 'axios';
-Vue.use(VueAxios, axios);
-
 import App from './App.vue'
 import { store } from './store/store'
 
@@ -33,5 +29,8 @@ new Vue({
     el: '#app',
     store: store,
     router: router,
-    render: h => h(App)
+    render: h => h(App),
+    created() {
+        this.$store.dispatch('loadData')
+    }
 });

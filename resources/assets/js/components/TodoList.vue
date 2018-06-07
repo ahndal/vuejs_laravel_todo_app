@@ -1,11 +1,11 @@
 <template>
     <div>
         <transition-group name="list" tag="ul">
-            <li v-for="(todoItem, index) in this.storedTodoItems" v-bind:key="todoItem.item" class="shadow">
+            <li v-for="(todoItem, index) in this.storedTodoItems" v-bind:key="todoItem.id" class="shadow">
                 <i class="checkBtn fas fa-check"  
-                    v-bind:class="{checkBtnCompleted: todoItem.completed}" 
+                    v-bind:class="{checkBtnCompleted: todoItem.is_completed!=='false'}" 
                     v-on:click="toggleComplete({todoItem, index})"></i>
-                <span v-bind:class="{textCompleted: todoItem.completed}">{{ todoItem.item }}</span>
+                <span v-bind:class="{textCompleted: todoItem.is_completed!=='false'}">{{ todoItem.todo }}</span>
                 <span class="removeBtn" v-on:click="removeTodo({todoItem, index})">
                     <i class="fas fa-trash-alt"></i>
                 </span>
@@ -26,7 +26,7 @@ export default {
   },
   computed: {
     ...mapGetters(['storedTodoItems'])
-  }
+  },
 };
 </script>
 

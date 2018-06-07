@@ -1,9 +1,14 @@
+import Vue from 'vue'
+
+import VueAxios from 'vue-axios';
+import axios from 'axios';
+Vue.use(VueAxios, axios);
+
 const storage = {
     fetch() {
-        const uri = 'http://localhost:8000//todos';
-        console.log(uri);
+        const uri = '/todos';
 
-        this.axios.get(uri).then((response) => {
+        axios.get(uri).then((response) => {
             console.log(response);
             return response.data;
         });
@@ -11,7 +16,7 @@ const storage = {
 };
 
 const state = {
-    todoItems: storage.fetch()
+    todoItems: []
 };
 
 const getters = {
@@ -21,29 +26,73 @@ const getters = {
 };
 
 const mutations = {
+    loadData(state, todoItems) {
+        state.todoItems = todoItems.todoItems;
+    },
     addOneItem(state, todoItem) {
-        const obj = { completed: false, item: todoItem };
-        localStorage.setItem(todoItem, JSON.stringify(obj));
-        state.todoItems.push(obj);
+        state.todoItems.push(todoItems.todoItems);
     },
     removeOneItem(state, payload) {
-        localStorage.removeItem(payload.todoItem.item);
         state.todoItems.splice(payload.index, 1);
     },
     toggleOneItem(state, payload) {
-        state.todoItems[payload.index].completed = !state.todoItems[payload.index].completed;
-    
-        localStorage.removeItem(payload.todoItem.item);
-        localStorage.setItem(payload.todoItem.item, JSON.stringify(payload.todoItem));
+            
+        state.todoItems[payload.index] = response.data;
+
+        payload.todoItem.is_completed = payload.todoItem.is_completed!=='false'?'false':'true';
+        axios.patch('/todos/'+payload.todoItem.id, payload.todoItem).then(response => {
+            state.todoItems[payload.index] = response.data;
+        });
     },
     clearAllItems(state) {
-        localStorage.clear();
-        state.todoItems = [];
+        axios.post('/todos/truncate').then(response => {
+            console.log(response);
+            state.todoItems = [];
+        });
     }
 };
+
+const actions = {
+    loadData(context) {
+        axios.get('/todos').then((response) => {
+            context.commit('loadData', {
+                todoItems: response.data
+            });
+        });
+    },
+    addOneItem(context, todoItem) {
+        const obj = { is_completed: 'false', todo: todoItem };
+        axios.post('/todos', obj).then(response => {
+            context.commit('addOneItem', {
+                todoItems: response.data
+            });
+        });
+    },
+    removeOneItem(context, payload) {
+        axios.delete('/todos/'+payload.todoItem.id).then(response => {
+            context.commit('removeOneItem', {
+                todoItems: response.data,
+                index: payload.index
+            });
+        });
+    },
+    toggleOneItem(context, payload) {
+        payload.todoItem.is_completed = payload.todoItem.is_completed!=='false'?'false':'true';
+        axios.patch('/todos/'+payload.todoItem.id, payload.todoItem).then(response => {
+            context.commit('removeOneItem', {
+                todoItems: response.data
+            });
+        });
+        
+    },
+    clearAllItems(context) {
+        
+    }
+}
 
 export default {
     state: state,
     getters: getters,
     mutations: mutations,
+    actions: actions,
 };

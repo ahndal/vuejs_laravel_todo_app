@@ -17,4 +17,7 @@
 Route::get('/', function () {
     return view('index');
 });
+
 Route::resource('todos', 'TodoController');
+
+Route::post('todos/truncate', ['as' => 'todos.truncate', 'uses' => 'TodoController@truncate']);

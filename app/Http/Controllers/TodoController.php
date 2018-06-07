@@ -37,10 +37,12 @@ class TodoController extends Controller
     public function store(Request $request)
     {
         $todo = new Todo([
-          'todo' => $request->get('todo')
+            'is_completed' => $request->get('is_completed'),
+            'todo' => $request->get('todo')
         ]);
         $todo->save();
-        return response()->json('Successfully added');
+        
+        return response()->json($todo);
     }
 
     /**
@@ -76,10 +78,11 @@ class TodoController extends Controller
     public function update(Request $request, $id)
     {
         $todo = Todo::find($id);
+        $todo->is_completed = $request->get('is_completed');
         $todo->todo = $request->get('todo');
         $todo->save();
-
-        return response()->json('Successfully Updated');
+        
+        return response()->json($todo);
     }
 
     /**
@@ -92,7 +95,12 @@ class TodoController extends Controller
     {
         $todo = Todo::find($id);
         $todo->delete();
-  
-        return response()->json('Successfully Deleted');
+        
+        return response()->json($todo);
+    }
+
+    public function truncate()
+    {
+        Todo::truncate();
     }
 }
