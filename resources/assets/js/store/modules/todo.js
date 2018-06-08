@@ -4,17 +4,6 @@ import VueAxios from 'vue-axios';
 import axios from 'axios';
 Vue.use(VueAxios, axios);
 
-const storage = {
-    fetch() {
-        const uri = '/todos';
-
-        axios.get(uri).then((response) => {
-            console.log(response);
-            return response.data;
-        });
-    }
-};
-
 const state = {
     todoItems: []
 };
@@ -30,25 +19,17 @@ const mutations = {
         state.todoItems = todoItems.todoItems;
     },
     addOneItem(state, todoItem) {
-        state.todoItems.push(todoItems.todoItems);
+        console.log(todoItem);
+        state.todoItems.push(todoItem.todoItem);
     },
     removeOneItem(state, payload) {
         state.todoItems.splice(payload.index, 1);
     },
     toggleOneItem(state, payload) {
-            
-        state.todoItems[payload.index] = response.data;
-
-        payload.todoItem.is_completed = payload.todoItem.is_completed!=='false'?'false':'true';
-        axios.patch('/todos/'+payload.todoItem.id, payload.todoItem).then(response => {
-            state.todoItems[payload.index] = response.data;
-        });
+        state.todoItems[payload.index] = payload.todoItem;
     },
     clearAllItems(state) {
-        axios.post('/todos/truncate').then(response => {
-            console.log(response);
-            state.todoItems = [];
-        });
+        state.todoItems = [];
     }
 };
 
@@ -64,29 +45,31 @@ const actions = {
         const obj = { is_completed: 'false', todo: todoItem };
         axios.post('/todos', obj).then(response => {
             context.commit('addOneItem', {
-                todoItems: response.data
+                todoItem: response.data
             });
         });
     },
     removeOneItem(context, payload) {
-        axios.delete('/todos/'+payload.todoItem.id).then(response => {
+        axios.delete('/todos/' + payload.todoItem.id).then(response => {
             context.commit('removeOneItem', {
-                todoItems: response.data,
                 index: payload.index
             });
         });
     },
     toggleOneItem(context, payload) {
         payload.todoItem.is_completed = payload.todoItem.is_completed!=='false'?'false':'true';
-        axios.patch('/todos/'+payload.todoItem.id, payload.todoItem).then(response => {
-            context.commit('removeOneItem', {
-                todoItems: response.data
+        axios.patch('/todos/' + payload.todoItem.id, payload.todoItem).then(response => {
+            context.commit('toggleOneItem', {
+                todoItem: response.data,
+                index: payload.index
             });
         });
         
     },
     clearAllItems(context) {
-        
+        axios.post('/todos/truncate').then(response => {
+            context.commit('clearAllItems');
+        });
     }
 }
 

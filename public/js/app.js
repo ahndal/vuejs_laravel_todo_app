@@ -11797,9 +11797,9 @@ module.exports = g;
 /* unused harmony export Store */
 /* unused harmony export install */
 /* unused harmony export mapState */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return mapMutations; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return mapGetters; });
-/* unused harmony export mapActions */
+/* unused harmony export mapMutations */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return mapGetters; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return mapActions; });
 /* unused harmony export createNamespacedHelpers */
 /**
  * vuex v3.0.1
@@ -13101,7 +13101,7 @@ process.umask = function() { return 0; };
       var text = this.newTodoItem.trim();
       if (text !== "") {
         // this.$emit("addTodoItem", this.newTodoItem);
-        this.$store.commit('addOneItem', text);
+        this.$store.dispatch('addOneItem', text);
         this.clearInput();
       } else {
         this.showModal = !this.showModal;
@@ -13185,11 +13185,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 
 /* harmony default export */ __webpack_exports__["a"] = ({
-  methods: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["c" /* mapMutations */])({
+  methods: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["b" /* mapActions */])({
     removeTodo: 'removeOneItem',
     toggleComplete: 'toggleOneItem'
   })),
-  computed: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["b" /* mapGetters */])(['storedTodoItems']))
+  computed: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["c" /* mapGetters */])(['storedTodoItems']))
 });
 
 /***/ }),
@@ -13210,7 +13210,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 
 /* harmony default export */ __webpack_exports__["a"] = ({
-  methods: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["c" /* mapMutations */])({
+  methods: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["b" /* mapActions */])({
     clearTodo: 'clearAllItems'
   }))
 });
@@ -17396,17 +17396,6 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
 
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_1_vue_axios___default.a, __WEBPACK_IMPORTED_MODULE_2_axios___default.a);
 
-var storage = {
-    fetch: function fetch() {
-        var uri = '/todos';
-
-        __WEBPACK_IMPORTED_MODULE_2_axios___default.a.get(uri).then(function (response) {
-            console.log(response);
-            return response.data;
-        });
-    }
-};
-
 var state = {
     todoItems: []
 };
@@ -17422,25 +17411,17 @@ var mutations = {
         state.todoItems = todoItems.todoItems;
     },
     addOneItem: function addOneItem(state, todoItem) {
-        state.todoItems.push(todoItems.todoItems);
+        console.log(todoItem);
+        state.todoItems.push(todoItem.todoItem);
     },
     removeOneItem: function removeOneItem(state, payload) {
         state.todoItems.splice(payload.index, 1);
     },
     toggleOneItem: function toggleOneItem(state, payload) {
-
-        state.todoItems[payload.index] = response.data;
-
-        payload.todoItem.is_completed = payload.todoItem.is_completed !== 'false' ? 'false' : 'true';
-        __WEBPACK_IMPORTED_MODULE_2_axios___default.a.patch('/todos/' + payload.todoItem.id, payload.todoItem).then(function (response) {
-            state.todoItems[payload.index] = response.data;
-        });
+        state.todoItems[payload.index] = payload.todoItem;
     },
     clearAllItems: function clearAllItems(state) {
-        __WEBPACK_IMPORTED_MODULE_2_axios___default.a.post('/todos/truncate').then(function (response) {
-            console.log(response);
-            state.todoItems = [];
-        });
+        state.todoItems = [];
     }
 };
 
@@ -17456,14 +17437,13 @@ var actions = {
         var obj = { is_completed: 'false', todo: todoItem };
         __WEBPACK_IMPORTED_MODULE_2_axios___default.a.post('/todos', obj).then(function (response) {
             context.commit('addOneItem', {
-                todoItems: response.data
+                todoItem: response.data
             });
         });
     },
     removeOneItem: function removeOneItem(context, payload) {
         __WEBPACK_IMPORTED_MODULE_2_axios___default.a.delete('/todos/' + payload.todoItem.id).then(function (response) {
             context.commit('removeOneItem', {
-                todoItems: response.data,
                 index: payload.index
             });
         });
@@ -17471,12 +17451,17 @@ var actions = {
     toggleOneItem: function toggleOneItem(context, payload) {
         payload.todoItem.is_completed = payload.todoItem.is_completed !== 'false' ? 'false' : 'true';
         __WEBPACK_IMPORTED_MODULE_2_axios___default.a.patch('/todos/' + payload.todoItem.id, payload.todoItem).then(function (response) {
-            context.commit('removeOneItem', {
-                todoItems: response.data
+            context.commit('toggleOneItem', {
+                todoItem: response.data,
+                index: payload.index
             });
         });
     },
-    clearAllItems: function clearAllItems(context) {}
+    clearAllItems: function clearAllItems(context) {
+        __WEBPACK_IMPORTED_MODULE_2_axios___default.a.post('/todos/truncate').then(function (response) {
+            context.commit('clearAllItems');
+        });
+    }
 };
 
 /* harmony default export */ __webpack_exports__["a"] = ({
