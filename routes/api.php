@@ -16,3 +16,18 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+//인증
+Route::post('auth/register', 'AuthController@register');
+Route::post('auth/login', 'AuthController@login');
+Route::group(['middleware' => 'jwt.auth'], function(){
+	Route::get('auth/user', 'AuthController@user');
+	Route::post('auth/logout', 'AuthController@logout');
+});
+Route::group(['middleware' => 'jwt.refresh'], function(){
+	Route::get('auth/refresh', 'AuthController@refresh');
+});
+
+//모듈
+Route::resource('todos', 'TodoController');
+Route::post('todos/truncate', ['as' => 'todos.truncate', 'uses' => 'TodoController@truncate']);
