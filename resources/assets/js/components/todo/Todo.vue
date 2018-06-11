@@ -19,6 +19,9 @@ export default {
     "todo-input": TodoInput,
     "todo-list": TodoList,
     "todo-footer": TodoFooter
+  },
+  created() {
+    this.$store.dispatch("loadData");
   }
 };
 </script>
